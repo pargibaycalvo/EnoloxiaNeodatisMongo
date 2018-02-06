@@ -26,21 +26,24 @@ public class Enoloxianeodatismongo {
 
         odb = ODBFactory.open(ODB_NAME);
         
-        amosar_analisis(odb);
-        System.out.println("-----");
-        amosar_uva(odb);
-        System.out.println("-----");
-        amosar_cliente(odb);
+        lectura_obxectos_vinho(odb);
+        acidez_minmax_uva(odb);
         
         odb.close();
 
     }
 
-    //mostrar datos de analisis con la base de datos vinho
-    public static void amosar_analisis(ODB odb) {
+    //mostrar base de datos vinho
+    public static void lectura_obxectos_vinho(ODB odb) {
 
         Objects<Analisis> analise = odb.getObjects(Analisis.class);
+        Objects<Uva> uvas = odb.getObjects(Uva.class);
+        Objects<Cliente> clientes = odb.getObjects(Cliente.class);
+
         Analisis analisis = null;
+        Uva uvitas = null;
+        Cliente clientete = null;
+        
         while (analise.hasNext()) {
             analisis = analise.next();
             System.out.println("Codigo:" + analisis.getCodigoa()
@@ -48,13 +51,7 @@ public class Enoloxianeodatismongo {
                     + " Tipo:" + analisis.getTipouva()
                     + " Cantidade:" + analisis.getCantidade());
         }
-    }
-    
-    //mostrar datos de uva con la base de datos vinho
-    public static void amosar_uva(ODB odb) {
-
-        Objects<Uva> uvas = odb.getObjects(Uva.class);
-        Uva uvitas = null;
+        System.out.println("----");
         while (uvas.hasNext()) {
             uvitas = uvas.next();
             System.out.println("Tipo:" + uvitas.getTipo()
@@ -62,13 +59,7 @@ public class Enoloxianeodatismongo {
                     + " Acidezmin:" + uvitas.getAcidezmin()
                     + " Acidemax:" + uvitas.getAcidezmax());
         }
-    }
-
-    //mostrar datos de cliente con la base de datos vinho
-    public static void amosar_cliente(ODB odb) {
-
-        Objects<Cliente> clientes = odb.getObjects(Cliente.class);
-        Cliente clientete = null;
+        System.out.println("----");
         while (clientes.hasNext()) {
             clientete = clientes.next();
             System.out.println("DNI:" + clientete.getDni()
@@ -76,5 +67,24 @@ public class Enoloxianeodatismongo {
                     + " Telf:" + clientete.getTelf()
                     + " Analisis:" + clientete.getNumerodeanalisis());
         }
+        System.out.println("----");
+    }
+    
+    //acidez min y max de cada uva
+    public static void acidez_minmax_uva(ODB odb){
+        
+        Objects<Uva> uvas = odb.getObjects(Uva.class);
+        Uva uvitas = null;
+        while (uvas.hasNext()) {
+            uvitas = uvas.next();
+            System.out.println("Nome:" + uvitas.getNomeu()
+                    + " Acidezmin:" + uvitas.getAcidezmin()
+                    + " Acidemax:" + uvitas.getAcidezmax());
+        }
+        System.out.println("----");
+    }
+    
+    public static void actualizar_analisis_clientes(ODB odb){
+        
     }
 }
