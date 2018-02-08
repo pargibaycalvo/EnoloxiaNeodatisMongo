@@ -39,12 +39,12 @@ public class Enoloxianeodatismongo {
 
         odb = ODBFactory.open(ODB_NAME);
 
-//        lectura_obxectos_vinho(odb);
+        lectura_obxectos_vinho(odb);
 //        acidez_minmax_uva(odb);
 //        actualizar_analisis_clientes(odb);
 //        añadir_datos_xerado_mongo(odb);
         
-        lectura_analisis();
+//        lectura_analisis();
         
         odb.close();
 
@@ -143,7 +143,7 @@ public class Enoloxianeodatismongo {
             total = analise.getCantidade() * 15;
             codigo = analise.getCodigoa();
 
-            IQuery uvas = new CriteriaQuery(Uva.class, Where.equal("tipouva", tipouva));
+            IQuery uvas = new CriteriaQuery(Uva.class, Where.equal("tipouva", analise.getTipouva()));
             Objects<Uva> uvazas = odb.getObjects(uvas);
             Uva uvitas = null;
             while (uvazas.hasNext()) {
