@@ -42,7 +42,10 @@ public class Enoloxianeodatismongo {
 //        lectura_obxectos_vinho(odb);
 //        acidez_minmax_uva(odb);
 //        actualizar_analisis_clientes(odb);
-        añadir_datos_xerado_mongo(odb);
+//        añadir_datos_xerado_mongo(odb);
+        
+        lectura_analisis();
+        
         odb.close();
 
     }
@@ -63,7 +66,7 @@ public class Enoloxianeodatismongo {
             System.out.println("Codigo:" + analisis.getCodigoa()
                     + " Acidez:" + analisis.getAcidez()
                     + " Tipo:" + analisis.getTipouva()
-                    + " Cantidade:" + analisis.getCantidade());
+                    + " Cantidade:" + analisis.getCantidade() * 15);
         }
         System.out.println("----");
         while (uvas.hasNext()) {
@@ -145,7 +148,7 @@ public class Enoloxianeodatismongo {
             Uva uvitas = null;
             while (uvazas.hasNext()) {
                 uvitas = uvazas.next();
-                
+
                 int min = uvitas.getAcidezmin();
                 int max = uvitas.getAcidezmax();
                 nomeuva = uvitas.getNomeu();
@@ -172,4 +175,78 @@ public class Enoloxianeodatismongo {
 
         }
     }
+    
+////OTRA FORMA DE REALIZAR EL EXAMEN---------------------------------------------------------------------------------------------////
+    
+    //creamos un metodo donde recogemos los campos necesarios de Analisis, ya hacemos la operacion
+    //al final llamamos a los metodos siguientes para realizar las operaciones e insertar los datos en 
+    //la base mongo
+    public static void lectura_analisis() {
+
+        Objects<Analisis> analisis = odb.getObjects(Analisis.class);
+        Analisis analise = null;
+        while (analisis.hasNext()) {
+            analise = analisis.next();
+
+            tipouva = analise.getTipouva();
+            acidez = analise.getAcidez();
+            dni = analise.getDni();
+            total = analise.getCantidade() * 15;
+            codigo = analise.getCodigoa();
+
+            //llamamos a los metodos desde esta clase
+            lectura_uva(analise.getTipouva(), analise.getAcidez());
+            datos_cliente(analise.getDni());
+            añadir_datos_mongo();
+
+        }
+    }
+
+    //leemos los datos de Uva, nos interesa el tipo más la acidez
+    public static void lectura_uva(String tipoUva, int acidez) {
+
+        IQuery uvas = new CriteriaQuery(Uva.class, Where.equal("tipouva", tipouva));
+        Objects<Uva> uvazas = odb.getObjects(uvas);
+        Uva uvitas = null;
+        while (uvazas.hasNext()) {
+            uvitas = uvazas.next();
+
+            int min = uvitas.getAcidezmin();
+            int max = uvitas.getAcidezmax();
+            nomeuva = uvitas.getNomeu();
+
+            if (acidez < min) {
+                trataAcidez = "subir acidez";
+            } else if (acidez > max) {
+                trataAcidez = "bajar acidez";
+            } else {
+                trataAcidez = "correcta";
+            }
+
+        }
+    }
+
+    //en los datos de la clase Cliente incrementamos segun el dni de Analisis
+    public static void datos_cliente(String dni) {
+
+        IQuery query = odb.criteriaQuery(Cliente.class, Where.equal("dni", dni));
+        Cliente clientes = (Cliente) odb.getObjects(query).getFirst();
+        clientes.setNumerodeanalisis(clientes.getNumerodeanalisis() + 1);
+        odb.store(clientes);
+    }
+
+    //creamos y añadimos los datos a mongo ( no hace falta crear nada en mongo ya lo hace auto)
+    public static void añadir_datos_mongo() {
+
+        client = new MongoClient("localhost", 27017);
+        database = client.getDatabase("resultado");
+        coleccion = database.getCollection("xerado");
+
+        Document docu = new Document("_id", codigo)
+                .append("uva", nomeuva)
+                .append("tratacidez", trataAcidez)
+                .append("total", total);
+        coleccion.insertOne(docu);
+    }
+
 }
